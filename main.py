@@ -1,5 +1,5 @@
 from fastapi.middleware.cors import CORSMiddleware
-from src.models.models_old import *
+from src.models.models import *
 from src.examples import *
 from fastapi import FastAPI
 import uvicorn
@@ -46,40 +46,20 @@ class Item(BaseModel):
 @app.post("/create_single", name="Создать один объект")
 async def create_single(item: Item = Body(
     ...,
-    examples={
-        "create_gene": {
-            "description": "Create gene",
-            "value": ADD_GENE_EXAMPLE
-        },
-        "create_person": {
-            "description": "Create person",
-            "value": ADD_PERSON_EXAMPLE
-        }
-    }
+    examples=CREATE_SINGLE_GREAT_EXAMPLE
 )):
 
     target_class = item.target_class
     data = item.data
     status = "Ok"
     error_data = {}
-    if target_class == 'people':
-        genes = data.get('genes')
-        data.pop('genes')
     try:
         obj_creator = adapter_dict['objects_in'][target_class].parse_obj(data)
         response = await adapter_dict['models'][target_class].create(**obj_creator.dict())
-        if target_class == 'people':
-            data = {
-                "people_id": {
-                    "id": response.id
-                },
-                "genes_ids": genes
-            }
-            body = Item(target_class="people", data=data)
-            await tie_single(body)
 
     except Exception as e:
         error_data[f'error in {data}'] = str(e)
+        response = {"error while creating object"}
         status = "not ok"
     return {"status": status, "data": response, "error_data": error_data}
 
@@ -122,9 +102,6 @@ async def create_many(item: Item = Body(
         "created": f'{num_created_items}/{num_of_items}',
         "error_data": error_data,
     }
-
-
-
 
 
 @app.post('/get_all', name="Получить все объекты")

@@ -9,62 +9,75 @@ from tortoise import models, fields
 from tortoise.contrib.pydantic import pydantic_model_creator
 
 
-class Genes(models.Model):
-    id = fields.IntField(pk=True, index=True)
-    gene_code = fields.CharField(max_length=50, unique=False)
-    rs_code = fields.CharField(max_length=25, unique=False)
-    poly_type = fields.CharField(max_length=50, unique=False)
-    poly_status = fields.CharField(max_length=50, unique=False)
-    interpretation = fields.TextField()
-    protein = fields.TextField()
-    comment = fields.TextField()
-    people: fields.ManyToManyRelation["People"] = fields.ManyToManyField(
-        'models.People', related_name='genes', through='genes_people',
+class BasicClass(models.Model):
+    name = fields.CharField(max_length=100, unique=True, null=True)
+
+    class Meta:
+        abstract = True
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
+class Drug(BasicClass):
+    brand_name = fields.ForeignKeyField("models.BrandName", null=True)
+    category = fields.ForeignKeyField("models.Category", null=True)
+    drug_class: fields.ManyToManyRelation["DrugClass"] = fields.ManyToManyField(
+        "models.DrugClass", related_name="drug class", through="drugs_class", null=True
+    )
+    therapeutic_use: fields.ManyToManyRelation["TherapeuticUse"] = fields.ManyToManyField(
+        "models.TherapeuticUse", related_name="therapeutic usage", through="drugs_usage", null=True
     )
 
-    def __str__(self):
-        return self.id
 
-    class Meta:
-        ordering = ["id"]
-        unique_together = (("rs_code", "gene_code", "poly_type"),)
+class DrugClass(BasicClass):
+    drug: fields.ManyToManyRelation[Drug]
 
 
-class People(models.Model):
-    id = fields.IntField(pk=True)
-    lab_number = fields.CharField(max_length=10, unique=True)
-    name = fields.CharField(max_length=50, unique=False)
-    sex = fields.CharField(max_length=10, unique=False)
-    date_of_birth = fields.CharField(max_length=20, unique=False)
-    material_type = fields.CharField(max_length=50, unique=False)
-    date_of_analysis = fields.CharField(max_length=50, unique=False)
-    reason_of_analysis = fields.TextField()
-    comment = fields.TextField(null=True)
-    genes: fields.ManyToManyRelation[Genes]
-
-    class Meta:
-        ordering = ["date_of_analysis"]
-
-    def __str__(self):
-        return f'{self.id}_{self.lab_number}'
+class TherapeuticUse(BasicClass):
+    drug: fields.ManyToManyRelation[Drug]
 
 
-obj_In_genes = pydantic_model_creator(Genes, name='genesIn', exclude_readonly=True)
-obj_genes = pydantic_model_creator(Genes, name='genes')
-obj_In_people = pydantic_model_creator(People, name='peopleIn', exclude_readonly=True)
-obj_people = pydantic_model_creator(People, name='people')
+class BrandName(BasicClass):
+    pass
+
+
+class Category(BasicClass):
+    pass
+
+
+obj_In_drugs = pydantic_model_creator(Drug, name='drugsIn', exclude_readonly=True)
+obj_drugs = pydantic_model_creator(Drug, name='drugs')
+obj_In_drug_class = pydantic_model_creator(DrugClass, name='DrugClassIn', exclude_readonly=True)
+obj_drug_class = pydantic_model_creator(DrugClass, name='drugClass')
+obj_In_ther_use = pydantic_model_creator(TherapeuticUse, name='therUseIn', exclude_readonly=True)
+obj_ther_use = pydantic_model_creator(TherapeuticUse, name='therUse')
+obj_In_brand_name = pydantic_model_creator(BrandName, name='brandnameIn', exclude_readonly=True)
+obj_brand_name = pydantic_model_creator(BrandName, name='brandName')
+obj_In_category = pydantic_model_creator(Category, name='categoryIn', exclude_readonly=True)
+obj_category = pydantic_model_creator(Category, name='category')
 
 adapter_dict = {
     "models": {
-        "people": People,
-        "genes": Genes,
+        "drug": Drug,
+        "drugClass": DrugClass,
+        "therUse": TherapeuticUse,
+        "brandName": BrandName,
+        "category": Category
     },
     "objects_in": {
-        "people": obj_In_people,
-        "genes": obj_In_genes,
+        "drug": obj_In_drugs,
+        "drugClass": obj_In_drug_class,
+        "therUse": obj_In_ther_use,
+        "brandName": obj_In_brand_name,
+        "category": obj_In_category
     },
     "objects_out": {
-        "people": obj_people,
-        "genes": obj_genes,
+        "drug": obj_drugs,
+        "drugClass": obj_drug_class,
+        "therUse": obj_ther_use,
+        "brandName": obj_brand_name,
+        "category": obj_category
     },
 }
