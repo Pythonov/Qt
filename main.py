@@ -1,4 +1,5 @@
 from fastapi.middleware.cors import CORSMiddleware
+from tortoise.query_utils import Q
 from src.models.models import *
 from src.examples import *
 from fastapi import FastAPI
@@ -225,29 +226,65 @@ async def tie_single(item: Item = Body(
     target_class = item.target_class
     data = item.data
     errors_list = []
+    counter_succ = num_of_objects = 0
     status = 'error at the beginning'
+    objects_to_tie = []
+    params = data[f'{target_class}_id']
+    alias_dict = {
+        'drugClass': 'drug_class',
+        "drug": 'drug',
+        "therUse": 'therapeutic_use',
+        "brandName": 'brand_name',
+        "category": 'category',
+    }
+
+    async def create_if_not_exist(target, parameters):
+        obj_pyd = pydantic_model_creator(
+            adapter_dict[target],
+            name=target + 'In',
+            exclude_readonly=True
+        )
+        obj_orm = obj_pyd.parse_obj(parameters)
+        await adapter_dict[target].create(**obj_orm.dict())
+        output_obj = await adapter_dict[target].get(**parameters)
+        return output_obj
+
+    """
+    Получение/создание дейст. в-ва
+    """
     try:
-        objects_to_tie = []
-        target_obj = await adapter_dict[target_class].get(**data[f'{target_class}_id'])
+        target_obj = await adapter_dict[target_class].get(Q(**params))
+    except:
+        target_obj = await create_if_not_exist(target_class, params)
+
+    try:
         for k, v in data['ids'].items():
             for obj in v:
+                num_of_objects += 1
+                try:
+                    await adapter_dict[k].get(Q(**obj))
+                except Exception as e:
+                    a = e
+                    await create_if_not_exist(k, obj)
+
                 try:
                     objects_to_tie.append(
-                        await adapter_dict[k].get(**obj)
+                        await adapter_dict[k].get(Q(**obj))
                     )
-
                 except Exception as e:
                     errors_list.append(f'{str(e)} in {obj}')
 
-            await target_obj.drug_class.add(*objects_to_tie)
-            await target_obj.brand_name.add(*objects_to_tie)
-            await target_obj.therapeutic_use.add(*objects_to_tie)
+            counter_succ += len(objects_to_tie)
+            f = getattr(target_obj, alias_dict[k])
+            await f.add(*objects_to_tie)
+            objects_to_tie = []
+
+            # await target_obj.brand_name.add(*objects_to_tie)
+            # await target_obj.therapeutic_use.add(*objects_to_tie)
 
         status = 'not ok' if errors_list else 'ok'
-        num_of_success = len(objects_to_tie)
-        num_of_combiners = len(data['ids'])
         return {"status": status,
-                "data": f"successfully combined {num_of_success}/{num_of_combiners}",
+                "data": f"successfully combined {counter_succ}/{num_of_objects}",
                 "errors": errors_list
                 }
     except Exception as e:

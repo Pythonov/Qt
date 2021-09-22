@@ -218,12 +218,28 @@ TIE_DRUG_EXAMPLE = {
   "target_class": "drug",
   "data": {
     "drug_id": {
-      "id": "1"
+      "name": "Тестовый2",
+      "category_id": "2"
     },
     "ids": {
-        "drug_class": [{"id": "1"}],
-        "brand_name": [{"id": "1"}],
-        "therapeutic_use": [{"id": "1"}]
+      "drugClass": [
+        {
+          "name": "тестовая категория"
+        }
+      ],
+      "brandName": [
+        {
+          "name": "тестовый бренд1"
+        },
+        {
+          "name": "тестовый бренд2"
+        }
+      ],
+      "therUse": [
+        {
+          "name": "тестовое применение"
+        }
+      ]
     }
   }
 }
