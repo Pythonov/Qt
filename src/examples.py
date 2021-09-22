@@ -149,6 +149,23 @@ ADD_MANY_BR_NAMES_EXAMPLE = {
   }
 }
 
+ADD_MANY_CATEGORIES_EXAMPLE = {
+  "target_class": "category",
+  "data": {
+    "list_to_create": [
+      {
+        "name": "Абсолютный риск"
+      },
+      {
+        "name": "Относительный риск"
+      },
+      {
+        "name": "Условный риск"
+      }
+    ]
+  }
+}
+
 ADD_MANY_PERSONS_EXAMPLE = {
   "target_class": "people",
   "data": {
@@ -218,26 +235,28 @@ TIE_DRUG_EXAMPLE = {
   "target_class": "drug",
   "data": {
     "drug_id": {
-      "name": "Тестовый2",
+      "name": "Абареликс",
       "category_id": "2"
     },
     "ids": {
+      "link": [
+        {
+          "name": "www.google.com"
+        }
+      ],
       "drugClass": [
         {
-          "name": "тестовая категория"
+          "name": "Антагонист ГнРГ"
         }
       ],
       "brandName": [
         {
-          "name": "тестовый бренд1"
-        },
-        {
-          "name": "тестовый бренд2"
+          "name": "Плэнаксис"
         }
       ],
       "therUse": [
         {
-          "name": "тестовое применение"
+          "name": "Рак простаты"
         }
       ]
     }

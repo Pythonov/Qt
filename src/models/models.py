@@ -6,7 +6,6 @@ in adapter_dict
 
 """
 from tortoise import models, fields
-from tortoise.contrib.pydantic import pydantic_model_creator
 from tortoise import Tortoise
 
 
@@ -22,7 +21,15 @@ class BasicClass(models.Model):
 
 
 class Drug(BasicClass):
-    # category_id = fields.IntField(pk=False, null=True)
+    link: fields.ManyToManyRelation[
+        "Link"
+    ] = fields.ManyToManyField(
+        "models.Link",
+        related_name="link",
+        through="drugs_links",
+        null=True,
+    )
+
     category: fields.ForeignKeyRelation["Category"] = fields.ForeignKeyField(
         "models.Category",
         null=True,
@@ -65,51 +72,14 @@ class Category(BasicClass):
     pass
 
 
-Tortoise.init_models(["src.models.models"], "models")
-obj_In_drugs = pydantic_model_creator(Drug, name="drugsIn", exclude_readonly=True)
-obj_drugs = pydantic_model_creator(Drug, name="drugs")
-obj_In_drug_class = pydantic_model_creator(
-    DrugClass, name="DrugClassIn", exclude_readonly=True
-)
-obj_drug_class = pydantic_model_creator(DrugClass, name="drugClass")
-obj_In_ther_use = pydantic_model_creator(
-    TherapeuticUse, name="therUseIn", exclude_readonly=True
-)
-obj_ther_use = pydantic_model_creator(TherapeuticUse, name="therUse")
-obj_In_brand_name = pydantic_model_creator(
-    BrandName, name="brandnameIn", exclude_readonly=True
-)
-obj_brand_name = pydantic_model_creator(BrandName, name="brandName")
-obj_In_category = pydantic_model_creator(
-    Category, name="categoryIn", exclude_readonly=True
-)
-obj_category = pydantic_model_creator(Category, name="category")
+class Link(BasicClass):
+    drug: fields.ManyToManyRelation[Drug]
 
-# print(obj_In_drugs.schema_json(indent=4))
-# adapter_dict = {
-#     "models": {
-#         "drug": Drug,
-#         "drugClass": DrugClass,
-#         "therUse": TherapeuticUse,
-#         "brandName": BrandName,
-#         "category": Category,
-#     },
-#     "objects_in": {
-#         "drug": obj_In_drugs,
-#         "drugClass": obj_In_drug_class,
-#         "therUse": obj_In_ther_use,
-#         "brandName": obj_In_brand_name,
-#         "category": obj_In_category,
-#     },
-#     "objects_out": {
-#         "drug": obj_drugs,
-#         "drugClass": obj_drug_class,
-#         "therUse": obj_ther_use,
-#         "brandName": obj_brand_name,
-#         "category": obj_category,
-#     },
-# }
+
+Tortoise.init_models(["src.models.models"], "models")
+
 adapter_dict = {
+    "link": Link,
     "drug": Drug,
     "drugClass": DrugClass,
     "therUse": TherapeuticUse,

@@ -6,6 +6,7 @@ from fastapi import FastAPI
 import uvicorn
 from fastapi import Body
 from tortoise.contrib.fastapi import register_tortoise
+from tortoise.contrib.pydantic import pydantic_model_creator
 from pydantic import BaseModel, validator, ValidationError
 
 # Initial config
@@ -73,6 +74,10 @@ async def create_many(item: Item = Body(
         "create_many_br_names": {
             "description": "Create br_names",
             "value": ADD_MANY_BR_NAMES_EXAMPLE
+        },
+        "create_many_categories": {
+            "description": "Create categories",
+            "value": ADD_MANY_CATEGORIES_EXAMPLE
         }
     }
 )):
@@ -187,29 +192,6 @@ async def delete(item: Item = Body(
     }
 
 
-# @app.post('/get_all_depend', name="Получить все объекты со связями")
-# async def get_all_depend(item: Item = Body(
-#     ...,
-#     examples={
-#         "get_all_persons": {
-#             "description": "Get persons",
-#             "value": GET_ALL_CATEG
-#         }
-#     }
-# )):
-#     target_class = "drug"
-#     response = await adapter_dict['models'][target_class].all().prefetch_related("category")
-#
-#     num_of_items = len(response)
-#
-#     for i, x in enumerate(response):
-#         list_for_person = x.category.related_objects
-#         response[i] = response[i].__dict__
-#         response[i]["category"] = list_for_person
-#
-#     return {"status": "Ok", "data": response, "num_of_items": num_of_items}
-
-
 @app.post('/tie', name="Объединить один объект другими")
 async def tie_single(item: Item = Body(
     ...,
@@ -231,6 +213,7 @@ async def tie_single(item: Item = Body(
     objects_to_tie = []
     params = data[f'{target_class}_id']
     alias_dict = {
+        'link': 'link',
         'drugClass': 'drug_class',
         "drug": 'drug',
         "therUse": 'therapeutic_use',
@@ -279,9 +262,6 @@ async def tie_single(item: Item = Body(
             await f.add(*objects_to_tie)
             objects_to_tie = []
 
-            # await target_obj.brand_name.add(*objects_to_tie)
-            # await target_obj.therapeutic_use.add(*objects_to_tie)
-
         status = 'not ok' if errors_list else 'ok'
         return {"status": status,
                 "data": f"successfully combined {counter_succ}/{num_of_objects}",
@@ -289,47 +269,6 @@ async def tie_single(item: Item = Body(
                 }
     except Exception as e:
         return {"status": status, "data": f"{str(e)} while adding preprocessed objects"}
-
-
-# @app.post('/get_params_of_object', name="Получить связи объекта")
-# async def get_params_of_obj(item: Item = Body(
-#     ...,
-#     examples={
-#         "get_gene_with_persons": {
-#             "description": "gene's persons",
-#             "value": GET_GENE_WITH_PERSONS_EXAMPLE
-#         },
-#         "get_person_with_genes": {
-#             "description": "persons' genes",
-#             "value": GET_PERSON_WITH_GENES_EXAMPLE
-#         }
-#     }
-# )):
-#     target_class = item.target_class
-#     data = item.data
-#     error_data = []
-#     response = x = full_info = 'error at the beginning'
-#     combiners = 'genes' if target_class == 'people' else 'people'
-#     try:
-#         target_obj = await adapter_dict['models'][target_class].get(**data[f'{target_class}_id'])
-#         response = []
-#         await target_obj.fetch_related(combiners)
-#         if target_class == 'people':
-#             for x in target_obj.genes:
-#                 response.append(x)
-#         else:
-#             for x in target_obj.people:
-#                 response.append(x)
-#         full_info = {f'{combiners} ids for {target_class} with ID {target_obj.id}: {[x.id for x in response]}'}
-#     except Exception as e:
-#         error_data.append(f'{e} in {x}')
-#
-#     return {
-#         "status": "ok",
-#         "data": response,
-#         "full_info": full_info,
-#         "error_data": error_data
-#     }
 
 if __name__ == '__main__':
     uvicorn.run(app)
