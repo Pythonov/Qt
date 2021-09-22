@@ -7,6 +7,7 @@ in adapter_dict
 """
 from tortoise import models, fields
 from tortoise.contrib.pydantic import pydantic_model_creator
+from tortoise import Tortoise
 
 
 class BasicClass(models.Model):
@@ -21,7 +22,12 @@ class BasicClass(models.Model):
 
 
 class Drug(BasicClass):
-    category = fields.ForeignKeyField("models.Category", null=True)
+    # category_id = fields.IntField(pk=False, null=True)
+    category: fields.ForeignKeyRelation["Category"] = fields.ForeignKeyField(
+        "models.Category",
+        null=True,
+        related_name="category"
+    )
     brand_name: fields.ManyToManyRelation[
         "BrandName"
     ] = fields.ManyToManyField(
@@ -59,6 +65,7 @@ class Category(BasicClass):
     pass
 
 
+Tortoise.init_models(["src.models.models"], "models")
 obj_In_drugs = pydantic_model_creator(Drug, name="drugsIn", exclude_readonly=True)
 obj_drugs = pydantic_model_creator(Drug, name="drugs")
 obj_In_drug_class = pydantic_model_creator(
@@ -78,26 +85,35 @@ obj_In_category = pydantic_model_creator(
 )
 obj_category = pydantic_model_creator(Category, name="category")
 
+# print(obj_In_drugs.schema_json(indent=4))
+# adapter_dict = {
+#     "models": {
+#         "drug": Drug,
+#         "drugClass": DrugClass,
+#         "therUse": TherapeuticUse,
+#         "brandName": BrandName,
+#         "category": Category,
+#     },
+#     "objects_in": {
+#         "drug": obj_In_drugs,
+#         "drugClass": obj_In_drug_class,
+#         "therUse": obj_In_ther_use,
+#         "brandName": obj_In_brand_name,
+#         "category": obj_In_category,
+#     },
+#     "objects_out": {
+#         "drug": obj_drugs,
+#         "drugClass": obj_drug_class,
+#         "therUse": obj_ther_use,
+#         "brandName": obj_brand_name,
+#         "category": obj_category,
+#     },
+# }
 adapter_dict = {
-    "models": {
-        "drug": Drug,
-        "drugClass": DrugClass,
-        "therUse": TherapeuticUse,
-        "brandName": BrandName,
-        "category": Category,
-    },
-    "objects_in": {
-        "drug": obj_In_drugs,
-        "drugClass": obj_In_drug_class,
-        "therUse": obj_In_ther_use,
-        "brandName": obj_In_brand_name,
-        "category": obj_In_category,
-    },
-    "objects_out": {
-        "drug": obj_drugs,
-        "drugClass": obj_drug_class,
-        "therUse": obj_ther_use,
-        "brandName": obj_brand_name,
-        "category": obj_category,
-    },
+    "drug": Drug,
+    "drugClass": DrugClass,
+    "therUse": TherapeuticUse,
+    "brandName": BrandName,
+    "category": Category,
 }
+

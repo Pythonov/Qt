@@ -1,12 +1,9 @@
 ADD_DRUG_EXAMPLE = {
-    "target_class": "drug",
-    "data": {
-        "name": "NAME",
-        "brand_name": "br_name",
-        "category": "categ",
-        "drug_class": "3",
-        "ther_use": "3"
-    }
+  "target_class": "drug",
+  "data": {
+    "name": "NAME2889",
+    "category_id": "1"
+  }
 }
 
 ADD_DRUG_CLASS_EXAMPLE = {
@@ -66,61 +63,88 @@ GET_GENE_EXAMPLE = {
     "data": {}
 }
 
-DEL_GENE_EXAMPLE = {
-  "target_class": "genes",
+DELETE_DRUG_EXAMPLE = {
+  "target_class": "drug",
   "data": {
     "list_to_delete": [{"id": "29"}, {"id": "21"}, {"id": "33"}]
   }
 }
 
-DEL_PERSON_EXAMPLE = {
-  "target_class": "people",
-  "data": {
-    "list_to_delete": [{"id": "29"}, {"id": "21"}, {"id": "33"}]
-  }
+DELETE_DRUG_CLASS_EXAMPLE = {
+    "target_class": "drugClass",
+    "data": {
+        "list_to_delete": [{"id": "29"}, {"id": "21"}, {"id": "33"}]
+    }
 }
 
-GET_ALL_GENES = {
-    "target_class": "genes",
-    "data": {}
+DELETE_THER_USE_EXAMPLE = {
+    "target_class": "therUse",
+    "data": {
+        "list_to_delete": [{"id": "29"}, {"id": "21"}, {"id": "33"}]
+    }
 }
 
-GET_ALL_PEOPLE = {
-    "target_class": "people",
-    "data": {}
+DELETE_BRAND_NAME_EXAMPLE = {
+    "target_class": "brandName",
+    "data": {
+        "list_to_delete": [{"id": "29"}, {"id": "21"}, {"id": "33"}]
+    }
 }
 
-ADD_MANY_GENES_EXAMPLE = {
-  "target_class": "genes",
+DELETE_CATEGORY_EXAMPLE = {
+    "target_class": "category",
+    "data": {
+        "list_to_delete": [{"id": "29"}, {"id": "21"}, {"id": "33"}]
+    }
+}
+
+
+DELETE_GREAT_EXAMPLE = {
+        "delete_drug": {
+            "description": "Delete drug",
+            "value": DELETE_DRUG_EXAMPLE
+        },
+        "delete_drug_class": {
+            "description": "Delete drug class",
+            "value": DELETE_DRUG_CLASS_EXAMPLE
+        },
+        "delete_ther_use": {
+            "description": "Delete ther_use",
+            "value": DELETE_THER_USE_EXAMPLE
+        },
+        "delete_brand_name": {
+            "description": "Delete brand_name",
+            "value": DELETE_BRAND_NAME_EXAMPLE
+        },
+        "delete_category": {
+            "description": "Delete category",
+            "value": DELETE_CATEGORY_EXAMPLE
+        }
+}
+
+GET_ALL_DRUGS = {
+  "target_class": "drug",
+  "data": {}
+}
+
+GET_ALL_CATEG = {
+  "target_class": "category",
+  "data": {}
+}
+
+ADD_MANY_BR_NAMES_EXAMPLE = {
+  "target_class": "brandName",
   "data": {
     "list_to_create": [
-        {
-            "gene_code": "1",
-            "comment": "comment text",
-            "rs_code": "1",
-            "poly_type": "1",
-            "poly_status": "1",
-            "interpretation": "interpretation text",
-            "protein": "protein text"
-        },
-        {
-            "gene_code": "2",
-            "comment": "comment text",
-            "rs_code": "2",
-            "poly_type": "2",
-            "poly_status": "2",
-            "interpretation": "interpretation text",
-            "protein": "protein text"
-        },
-        {
-            "gene_code": "3",
-            "comment": "comment text",
-            "rs_code": "3",
-            "poly_type": "3",
-            "poly_status": "3",
-            "interpretation": "interpretation text",
-            "protein": "protein text"
-        }
+      {
+    "name": "NAME5"
+  },
+      {
+    "name": "NAME6"
+  },
+      {
+    "name": "NAME3"
+  }
     ]
   }
 }
@@ -190,22 +214,25 @@ TIE_PERSON_EXAMPLE = {
   }
 }
 
-TIE_GENE_EXAMPLE = {
-  "target_class": "genes",
+TIE_DRUG_EXAMPLE = {
+  "target_class": "drug",
   "data": {
-    "genes_id": {
+    "drug_id": {
       "id": "1"
     },
-    "people_ids": [
-      {"id": "4"}, {"id": "44"}, {"id": "9"}
-    ]
+    "ids": {
+        "drug_class": [{"id": "1"}],
+        "brand_name": [{"id": "1"}],
+        "therapeutic_use": [{"id": "1"}]
+    }
   }
 }
 
-GET_SINGLE_GENE_EXAMPLE = {
-  "target_class": "genes",
+
+GET_SINGLE_CATEG_EXAMPLE = {
+  "target_class": "category",
   "data": {
-    "id": "3"
+    "id": "1"
   }
 }
 
