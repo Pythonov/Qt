@@ -86,4 +86,3 @@ adapter_dict = {
     "brandName": BrandName,
     "category": Category,
 }
-

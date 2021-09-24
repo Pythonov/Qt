@@ -2,7 +2,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from tortoise.query_utils import Q
 from src.models.models import *
 from src.examples import *
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 import uvicorn
 from fastapi import Body
 from tortoise.contrib.fastapi import register_tortoise
@@ -46,7 +46,6 @@ async def create_single(item: Item = Body(
     ...,
     examples=CREATE_SINGLE_GREAT_EXAMPLE
 )):
-
     target_class = item.target_class
     data = item.data
     status = "Ok"
@@ -240,14 +239,16 @@ async def tie_single(item: Item = Body(
     except:
         target_obj = await create_if_not_exist(target_class, params)
 
+    parameters = data.copy()
+    parameters.pop('drug_id')
+
     try:
-        for k, v in data['ids'].items():
+        for k, v in parameters.items():
             for obj in v:
                 num_of_objects += 1
                 try:
                     await adapter_dict[k].get(Q(**obj))
-                except Exception as e:
-                    a = e
+                except Exception:
                     await create_if_not_exist(k, obj)
 
                 try:
