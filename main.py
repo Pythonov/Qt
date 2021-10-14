@@ -41,6 +41,22 @@ class Item(BaseModel):
         return v
 
 
+@app.delete("/delete_id={num_id}", name="Удалить объект")
+async def delete_single(num_id):
+    target_class = 'drug'
+    status = 'not ok'
+    error_data = {}
+    try:
+        obj_to_delete = await adapter_dict[target_class].get(id=num_id)
+        res = await obj_to_delete.delete()
+        status = 'ok'
+    except Exception as e:
+        res = 'ERROR 500'
+        error_data['error'] = str(e)
+
+    return {'status': status, 'data': res, 'error_data': error_data}
+
+
 @app.post("/create_single", name="Создать один объект")
 async def create_single(item: Item = Body(
     ...,
@@ -130,7 +146,7 @@ async def get_all(item: Item = Body(
             adapter_dict[target_class],
             name=target_class,
         )
-    response = await obj_pyd.from_queryset(adapter_dict[target_class].all())
+    response = await obj_pyd.from_queryset(adapter_dict[target_class].filter(Q()))
     num_of_items = len(response)
     return {"status": "Ok", "data": response, "num_of_items": num_of_items}
 
