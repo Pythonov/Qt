@@ -146,7 +146,7 @@ async def get_all(item: Item = Body(
             adapter_dict[target_class],
             name=target_class,
         )
-    response = await obj_pyd.from_queryset(adapter_dict[target_class].filter(Q()))
+    response = await obj_pyd.from_queryset(adapter_dict[target_class].all())
     num_of_items = len(response)
     return {"status": "Ok", "data": response, "num_of_items": num_of_items}
 
