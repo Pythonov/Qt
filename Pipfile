@@ -7,6 +7,10 @@ name = "pypi"
 uvicorn = {extras = ["all"], version = "*"}
 fastapi = "*"
 aerich = "*"
+jaydebeapi = "*"
+strawberry-graphql = {extras = ["asgi"], version = "*"}
+ariadne = "*"
+pandas = "*"
 
 [dev-packages]
 
